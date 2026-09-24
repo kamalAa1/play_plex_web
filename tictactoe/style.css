@@ -92,12 +92,12 @@ body {
   width: 100%;
   max-width: 440px;
   min-height: 100vh;
-  padding: 24px 18px;
+  padding: 36px 20px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  gap: 16px;
+  gap: 24px;
 }
 
 /* Header */
@@ -106,7 +106,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 6px;
 }
 
 .brand {
@@ -123,11 +123,11 @@ body {
   padding: 4px 12px;
   border-radius: 20px;
   border: 1px solid rgba(255, 209, 102, 0.25);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .game-title {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 900;
   letter-spacing: -0.5px;
 }
@@ -137,167 +137,24 @@ body {
   text-shadow: 0 0 16px var(--color-x-glow);
 }
 
-/* Mode Selector Switch */
-.mode-toggle {
-  display: flex;
-  background: rgba(255, 255, 255, 0.06);
-  padding: 4px;
-  border-radius: 14px;
-  border: 1px solid var(--border-glass);
-  width: 100%;
-  max-width: 320px;
-}
-
-.mode-btn {
-  flex: 1;
-  border: none;
-  background: transparent;
-  color: var(--color-muted);
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 700;
-  padding: 8px 12px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.25s ease;
-}
-
-.mode-btn.active {
-  background: var(--bg-glass);
-  color: var(--color-text);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--border-glass);
-}
-
-/* Difficulty Selector */
-.difficulty-bar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.game-hint {
   font-size: 0.8rem;
-  transition: opacity 0.3s;
-}
-
-.difficulty-label {
   color: var(--color-muted);
   font-weight: 600;
-}
-
-.diff-chips {
-  display: flex;
-  gap: 6px;
-}
-
-.diff-chip {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--color-muted);
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  font-family: inherit;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.diff-chip.active {
-  background: var(--color-gold);
-  color: #0b0c1e;
-  border-color: var(--color-gold);
-  font-weight: 800;
-}
-
-/* Scoreboard */
-.scoreboard {
-  display: grid;
-  grid-template-columns: 1fr 0.8fr 1fr;
-  gap: 10px;
-  width: 100%;
-}
-
-.score-card {
-  background: var(--bg-glass);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--border-glass);
-  border-radius: 16px;
-  padding: 10px 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.score-card.player-x.active {
-  border-color: var(--color-x);
-  box-shadow: 0 0 16px var(--color-x-glow);
-}
-
-.score-card.player-o.active {
-  border-color: var(--color-o);
-  box-shadow: 0 0 16px var(--color-o-glow);
-}
-
-.score-icon {
-  font-size: 1.4rem;
-  font-weight: 900;
-  width: 34px;
-  height: 34px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-}
-
-.player-x .score-icon {
-  color: var(--color-x);
-  background: rgba(0, 245, 212, 0.12);
-}
-
-.player-o .score-icon {
-  color: var(--color-o);
-  background: rgba(255, 0, 127, 0.12);
-}
-
-.score-ties .score-icon {
-  color: var(--color-muted);
-  background: rgba(255, 255, 255, 0.06);
-}
-
-.score-info {
-  display: flex;
-  flex-direction: column;
-}
-
-.player-name {
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--color-muted);
-  letter-spacing: 0.5px;
-}
-
-.score-value {
-  font-size: 1.25rem;
-  font-weight: 900;
+  letter-spacing: 0.4px;
 }
 
 /* Turn Banner */
 .turn-banner {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: rgba(255, 255, 255, 0.06);
   backdrop-filter: blur(10px);
-  padding: 6px 18px;
+  padding: 8px 22px;
   border-radius: 30px;
   border: 1px solid var(--border-glass);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #ffffff;
 }
@@ -307,13 +164,13 @@ body {
   height: 10px;
   border-radius: 50%;
   background: var(--color-x);
-  box-shadow: 0 0 8px var(--color-x);
+  box-shadow: 0 0 10px var(--color-x);
   transition: all 0.3s ease;
 }
 
 .turn-banner.o-turn .turn-dot {
   background: var(--color-o);
-  box-shadow: 0 0 8px var(--color-o);
+  box-shadow: 0 0 10px var(--color-o);
 }
 
 /* Game Board */
@@ -334,8 +191,8 @@ body {
   gap: 12px;
   background: var(--bg-glass);
   backdrop-filter: blur(20px);
-  padding: 14px;
-  border-radius: 24px;
+  padding: 16px;
+  border-radius: 26px;
   border: 1px solid var(--border-glass);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.45);
 }
@@ -343,13 +200,13 @@ body {
 .cell {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
+  border-radius: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   position: relative;
-  font-size: 2.8rem;
+  font-size: 3rem;
   font-weight: 900;
   font-family: inherit;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -402,63 +259,6 @@ body {
   z-index: 5;
   opacity: 0;
   transition: all 0.4s ease;
-}
-
-/* Controls */
-.game-controls {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  max-width: 340px;
-}
-
-.ctrl-btn {
-  border: none;
-  font-family: inherit;
-  font-weight: 700;
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-}
-
-.btn-sound {
-  width: 48px;
-  height: 48px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-glass);
-  color: white;
-  font-size: 1.1rem;
-}
-
-.btn-restart {
-  flex: 1;
-  height: 48px;
-  background: linear-gradient(135deg, #6c5ce7, #a29bfe);
-  color: white;
-  font-size: 0.9rem;
-  box-shadow: 0 4px 15px rgba(108, 92, 231, 0.3);
-}
-
-.btn-restart:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.5);
-}
-
-.btn-reset {
-  height: 48px;
-  padding: 0 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid var(--border-glass);
-  color: var(--color-muted);
-  font-size: 0.75rem;
-}
-
-.ctrl-btn:active {
-  transform: scale(0.96);
 }
 
 /* Modal Overlay */
@@ -528,7 +328,7 @@ body {
   border: 1px solid rgba(255, 209, 102, 0.25);
   border-radius: 16px;
   padding: 12px;
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -594,7 +394,6 @@ body {
   box-shadow: 0 6px 22px rgba(0, 245, 212, 0.5);
 }
 
-/* Confetti Canvas */
 #confettiCanvas {
   position: fixed;
   inset: 0;

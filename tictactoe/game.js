@@ -1,6 +1,6 @@
 /**
  * PlayPlex HTML5 Tic-Tac-Toe Game Engine
- * Includes AI logic (Easy, Medium, Minimax), Sound Effects, Confetti, and Flutter WebView Bridge
+ * Single Round Match vs Bot (Tiebreaker only on Draw) + Flutter WebView Bridge
  */
 
 (function () {
@@ -8,19 +8,9 @@
 
   // State
   let board = Array(9).fill(null);
-  let currentPlayer = 'X'; // X starts
-  let gameMode = 'ai'; // 'ai' or 'pvp'
-  let difficulty = 'medium'; // 'easy', 'medium', 'unbeatable'
+  let currentPlayer = 'X'; // Player is X, Bot is O
   let isGameOver = false;
   let moveCount = 0;
-  let soundEnabled = true;
-
-  // Scores
-  let scores = {
-    x: 0,
-    o: 0,
-    ties: 0,
-  };
 
   // Winning Combos
   const WINNING_COMBOS = [
@@ -40,25 +30,12 @@
   const strikeLineEl = document.getElementById('strikeLine');
   const turnBannerEl = document.getElementById('turnBanner');
   const turnTextEl = document.getElementById('turnText');
-  const cardXEl = document.getElementById('cardX');
-  const cardOEl = document.getElementById('cardO');
-  const scoreXEl = document.getElementById('scoreX');
-  const scoreOEl = document.getElementById('scoreO');
-  const scoreTiesEl = document.getElementById('scoreTies');
-  const nameXEl = document.getElementById('nameX');
-  const nameOEl = document.getElementById('nameO');
-  const modeSelector = document.getElementById('modeSelector');
-  const difficultyBar = document.getElementById('difficultyBar');
   const resultModal = document.getElementById('resultModal');
   const modalGlow = document.getElementById('modalGlow');
   const modalTitle = document.getElementById('modalTitle');
   const modalSubtitle = document.getElementById('modalSubtitle');
   const rewardText = document.getElementById('rewardText');
-  const btnRestart = document.getElementById('btnRestart');
-  const btnResetAll = document.getElementById('btnResetAll');
-  const btnNextRound = document.getElementById('btnNextRound');
-  const btnSound = document.getElementById('btnSound');
-  const soundIcon = document.getElementById('soundIcon');
+  const btnReplayDraw = document.getElementById('btnReplayDraw');
   const confettiCanvas = document.getElementById('confettiCanvas');
 
   // Web Audio Synthesizer
@@ -71,7 +48,6 @@
       }
     },
     playTone(freq, type, duration, delay = 0) {
-      if (!soundEnabled) return;
       try {
         this.init();
         if (!this.ctx) return;
@@ -82,27 +58,25 @@
         const gain = this.ctx.createGain();
         osc.type = type;
         osc.frequency.setValueAtTime(freq, this.ctx.currentTime + delay);
-        gain.gain.setValueAtTime(0.15, this.ctx.currentTime + delay);
+        gain.gain.setValueAtTime(0.12, this.ctx.currentTime + delay);
         gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + delay + duration);
         osc.connect(gain);
         gain.connect(this.ctx.destination);
         osc.start(this.ctx.currentTime + delay);
         osc.stop(this.ctx.currentTime + delay + duration);
-      } catch (e) {
-        console.warn('Audio play error:', e);
-      }
+      } catch (_) {}
     },
     tapX() {
-      this.playTone(520, 'sine', 0.1);
+      this.playTone(520, 'sine', 0.08);
     },
     tapO() {
-      this.playTone(380, 'sine', 0.1);
+      this.playTone(380, 'sine', 0.08);
     },
     win() {
-      this.playTone(523.25, 'triangle', 0.15, 0); // C5
-      this.playTone(659.25, 'triangle', 0.15, 0.12); // E5
-      this.playTone(783.99, 'triangle', 0.25, 0.24); // G5
-      this.playTone(1046.5, 'triangle', 0.45, 0.36); // C6
+      this.playTone(523.25, 'triangle', 0.15, 0);
+      this.playTone(659.25, 'triangle', 0.15, 0.1);
+      this.playTone(783.99, 'triangle', 0.25, 0.2);
+      this.playTone(1046.5, 'triangle', 0.45, 0.3);
     },
     draw() {
       this.playTone(300, 'sawtooth', 0.2, 0);
@@ -115,6 +89,7 @@
     particles: [],
     animId: null,
     start() {
+      if (!confettiCanvas) return;
       const ctx = confettiCanvas.getContext('2d');
       confettiCanvas.width = window.innerWidth;
       confettiCanvas.height = window.innerHeight;
@@ -158,13 +133,14 @@
     },
     stop() {
       if (this.animId) cancelAnimationFrame(this.animId);
+      if (!confettiCanvas) return;
       const ctx = confettiCanvas.getContext('2d');
       ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
     },
   };
 
   // ==========================================
-  // FLUTTER WEBVIEW BRIDGE CALLER
+  // FLUTTER WEBVIEW BRIDGE DISPATCHER
   // ==========================================
   function notifyFlutterApp(result) {
     const payload = {
@@ -174,8 +150,8 @@
       score: result.score,
       coins: result.coins,
       moves: result.moves,
-      mode: gameMode,
-      difficulty: gameMode === 'ai' ? difficulty : 'pvp',
+      mode: 'ai',
+      difficulty: 'medium',
       timestamp: Date.now(),
     };
 
@@ -184,7 +160,7 @@
 
     let bridgeDetected = false;
 
-    // 1. Standard webview_flutter JavaScript Channel: FlutterChannel
+    // 1. webview_flutter JavaScript Channel: FlutterChannel
     if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
       window.FlutterChannel.postMessage(payloadJson);
       bridgeDetected = true;
@@ -222,7 +198,7 @@
         : 'Bridge Ready (Waiting for Flutter)';
     }
 
-    // Global hook for direct evaluation or testing
+    // Global hook
     if (typeof window.onGameOver === 'function') {
       window.onGameOver(payload);
     }
@@ -244,8 +220,9 @@
       cell.disabled = false;
     });
 
-    strikeLineEl.style.opacity = '0';
-    resultModal.classList.remove('active');
+    if (strikeLineEl) strikeLineEl.style.opacity = '0';
+    if (resultModal) resultModal.classList.remove('active');
+    if (btnReplayDraw) btnReplayDraw.style.display = 'none';
     Confetti.stop();
     updateTurnIndicator();
   }
@@ -254,27 +231,25 @@
   function handleCellClick(index) {
     if (board[index] !== null || isGameOver) return;
 
-    makeMove(index, currentPlayer);
+    makeMove(index, 'X');
 
     if (isGameOver) return;
 
-    if (gameMode === 'ai' && currentPlayer === 'O') {
-      // Disable clicks during AI thinking
-      cells.forEach((c) => (c.disabled = true));
-      setTimeout(() => {
+    // AI Turn
+    cells.forEach((c) => (c.disabled = true));
+    setTimeout(() => {
+      if (!isGameOver) {
+        const aiMove = getAiMove();
+        makeMove(aiMove, 'O');
         if (!isGameOver) {
-          const aiMove = getAiMove();
-          makeMove(aiMove, 'O');
-          if (!isGameOver) {
-            cells.forEach((c) => {
-              if (board[parseInt(c.dataset.index)] === null) {
-                c.disabled = false;
-              }
-            });
-          }
+          cells.forEach((c) => {
+            if (board[parseInt(c.dataset.index)] === null) {
+              c.disabled = false;
+            }
+          });
         }
-      }, 380);
-    }
+      }
+    }, 380);
   }
 
   // Execute a Move
@@ -316,6 +291,8 @@
   // Draw Win Line
   function drawStrikeLine(combo) {
     combo.forEach((idx) => cells[idx].classList.add('winning-cell'));
+
+    if (!strikeLineEl || !boardEl) return;
 
     const isHorizontal =
       combo[0] === 0 && combo[1] === 1
@@ -390,38 +367,36 @@
     let score = 0;
 
     if (winner === 'X') {
-      scores.x++;
-      scoreXEl.textContent = scores.x;
       earnedCoins = 50;
       score = 500;
-      modalGlow.textContent = '🏆';
-      modalTitle.textContent = 'VICTORY!';
-      modalSubtitle.textContent = gameMode === 'ai' ? 'You defeated the Bot!' : 'Player X wins the match!';
+      if (modalGlow) modalGlow.textContent = '🏆';
+      if (modalTitle) modalTitle.textContent = 'VICTORY!';
+      if (modalSubtitle) modalSubtitle.textContent = 'You defeated the Bot in this round!';
+      if (btnReplayDraw) btnReplayDraw.style.display = 'none'; // Over: No replay on win
       AudioEngine.win();
       Confetti.start();
       if (winCombo) drawStrikeLine(winCombo);
     } else if (winner === 'O') {
-      scores.o++;
-      scoreOEl.textContent = scores.o;
       earnedCoins = 10;
       score = 100;
-      modalGlow.textContent = '🤖';
-      modalTitle.textContent = 'DEFEAT!';
-      modalSubtitle.textContent = gameMode === 'ai' ? 'Bot outsmarted you this time!' : 'Player O wins the match!';
+      if (modalGlow) modalGlow.textContent = '🤖';
+      if (modalTitle) modalTitle.textContent = 'DEFEAT!';
+      if (modalSubtitle) modalSubtitle.textContent = 'Bot won this round!';
+      if (btnReplayDraw) btnReplayDraw.style.display = 'none'; // Over: No replay on loss
       AudioEngine.draw();
       if (winCombo) drawStrikeLine(winCombo);
     } else {
-      scores.ties++;
-      scoreTiesEl.textContent = scores.ties;
+      // DRAW: Allow playing tiebreaker round
       earnedCoins = 20;
       score = 250;
-      modalGlow.textContent = '🤝';
-      modalTitle.textContent = "IT'S A DRAW!";
-      modalSubtitle.textContent = 'Great defense from both sides!';
+      if (modalGlow) modalGlow.textContent = '🤝';
+      if (modalTitle) modalTitle.textContent = "IT'S A DRAW!";
+      if (modalSubtitle) modalSubtitle.textContent = 'Round ended in a tie. Play tiebreaker!';
+      if (btnReplayDraw) btnReplayDraw.style.display = 'block'; // Only visible on draw
       AudioEngine.draw();
     }
 
-    rewardText.textContent = `+${earnedCoins} Coins Earned`;
+    if (rewardText) rewardText.textContent = `+${earnedCoins} Coins Earned`;
 
     // Notify Flutter App via WebView Bridge
     notifyFlutterApp({
@@ -431,48 +406,37 @@
       moves: moveCount,
     });
 
-    // Show result modal after small delay
+    // Show result modal
     setTimeout(() => {
-      resultModal.classList.add('active');
+      if (resultModal) resultModal.classList.add('active');
     }, 700);
   }
 
-  // Update Turn Indicator & active card glow
+  // Update Turn Indicator
   function updateTurnIndicator() {
+    if (!turnBannerEl || !turnTextEl) return;
     if (currentPlayer === 'X') {
       turnBannerEl.classList.remove('o-turn');
-      turnTextEl.textContent = gameMode === 'ai' ? "Your Turn (X)" : "Player X's Turn";
-      cardXEl.classList.add('active');
-      cardOEl.classList.remove('active');
+      turnTextEl.textContent = 'Your Turn (X)';
     } else {
       turnBannerEl.classList.add('o-turn');
-      turnTextEl.textContent = gameMode === 'ai' ? 'Bot is Thinking...' : "Player O's Turn";
-      cardOEl.classList.add('active');
-      cardXEl.classList.remove('active');
+      turnTextEl.textContent = 'Bot is Thinking...';
     }
   }
 
   // ==========================================
-  // AI DECISION ENGINE
+  // MEDIUM AI DECISION ENGINE
   // ==========================================
   function getAiMove() {
     const available = board
       .map((val, idx) => (val === null ? idx : null))
       .filter((v) => v !== null);
 
-    if (difficulty === 'easy') {
-      // Random move
+    // 60% optimal / 40% random for balanced medium gameplay
+    if (Math.random() < 0.4) {
       return available[Math.floor(Math.random() * available.length)];
     }
 
-    if (difficulty === 'medium') {
-      // 60% optimal / 40% random
-      if (Math.random() < 0.4) {
-        return available[Math.floor(Math.random() * available.length)];
-      }
-    }
-
-    // Unbeatable Minimax
     return getBestMove();
   }
 
@@ -524,7 +488,7 @@
     if (checkWin(b, 'O')) return 10 - depth;
     if (checkWin(b, 'X')) return depth - 10;
     if (b.every((c) => c !== null)) return 0;
-    if (depth >= 6) return 0; // Performance cutoff
+    if (depth >= 5) return 0;
 
     if (isMaximizing) {
       let maxEval = -Infinity;
@@ -561,55 +525,12 @@
     });
   });
 
-  btnRestart.addEventListener('click', initGame);
-  btnNextRound.addEventListener('click', initGame);
+  // Replay only active on draw
+  if (btnReplayDraw) {
+    btnReplayDraw.addEventListener('click', initGame);
+  }
 
-  btnResetAll.addEventListener('click', () => {
-    scores = { x: 0, o: 0, ties: 0 };
-    scoreXEl.textContent = '0';
-    scoreOEl.textContent = '0';
-    scoreTiesEl.textContent = '0';
-    initGame();
-  });
-
-  // Sound Toggle
-  btnSound.addEventListener('click', () => {
-    soundEnabled = !soundEnabled;
-    soundIcon.textContent = soundEnabled ? '🔊' : '🔇';
-    btnSound.style.opacity = soundEnabled ? '1' : '0.5';
-  });
-
-  // Mode Selection (vs Bot / 2 Players)
-  modeSelector.addEventListener('click', (e) => {
-    const btn = e.target.closest('.mode-btn');
-    if (!btn) return;
-    document.querySelectorAll('.mode-btn').forEach((b) => b.classList.remove('active'));
-    btn.classList.add('active');
-    gameMode = btn.dataset.mode;
-
-    if (gameMode === 'ai') {
-      difficultyBar.style.display = 'flex';
-      nameXEl.textContent = 'PLAYER (X)';
-      nameOEl.textContent = 'BOT (O)';
-    } else {
-      difficultyBar.style.display = 'none';
-      nameXEl.textContent = 'PLAYER 1 (X)';
-      nameOEl.textContent = 'PLAYER 2 (O)';
-    }
-    initGame();
-  });
-
-  // Difficulty Selection
-  difficultyBar.addEventListener('click', (e) => {
-    const chip = e.target.closest('.diff-chip');
-    if (!chip) return;
-    document.querySelectorAll('.diff-chip').forEach((c) => c.classList.remove('active'));
-    chip.classList.add('active');
-    difficulty = chip.dataset.diff;
-    initGame();
-  });
-
-  // Window resize confetti canvas adjustment
+  // Resize listener for confetti
   window.addEventListener('resize', () => {
     if (confettiCanvas) {
       confettiCanvas.width = window.innerWidth;

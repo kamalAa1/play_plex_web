@@ -17,71 +17,19 @@
   </div>
 
   <div class="app-container">
-    <!-- Header / Scoreboard -->
+    <!-- Header -->
     <header class="game-header">
       <div class="brand">
-        <div class="game-badge">⚡ PLAYPLEX ARCADE</div>
+        <div class="game-badge">⚡ PLAYPLEX 1V1 ARENA</div>
         <h1 class="game-title">Tic-Tac-<span>Toe</span></h1>
-      </div>
-
-      <!-- Mode Selector -->
-      <div class="mode-toggle" id="modeSelector">
-        <button class="mode-btn active" data-mode="ai" id="btnModeAi">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2M7.5 13A1.5 1.5 0 0 0 6 14.5 1.5 1.5 0 0 0 7.5 16 1.5 1.5 0 0 0 9 14.5 1.5 1.5 0 0 0 7.5 13m9 0a1.5 1.5 0 0 0-1.5 1.5 1.5 1.5 0 0 0 1.5 1.5 1.5 1.5 0 0 0 1.5-1.5 1.5 1.5 0 0 0-1.5-1.5z"/>
-          </svg>
-          vs Bot
-        </button>
-        <button class="mode-btn" data-mode="pvp" id="btnModePvp">
-          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
-            <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
-          </svg>
-          2 Players
-        </button>
-      </div>
-
-      <!-- Difficulty Selector (visible in vs Bot mode) -->
-      <div class="difficulty-bar" id="difficultyBar">
-        <span class="difficulty-label">AI Difficulty:</span>
-        <div class="diff-chips">
-          <button class="diff-chip" data-diff="easy" id="diffEasy">Easy</button>
-          <button class="diff-chip active" data-diff="medium" id="diffMedium">Medium</button>
-          <button class="diff-chip" data-diff="unbeatable" id="diffHard">Master</button>
-        </div>
+        <p class="game-hint">Single decisive round vs Bot</p>
       </div>
     </header>
-
-    <!-- Score Board -->
-    <div class="scoreboard">
-      <div class="score-card player-x active" id="cardX">
-        <div class="score-icon">✕</div>
-        <div class="score-info">
-          <span class="player-name" id="nameX">PLAYER (X)</span>
-          <span class="score-value" id="scoreX">0</span>
-        </div>
-      </div>
-
-      <div class="score-card score-ties">
-        <div class="score-icon">=</div>
-        <div class="score-info">
-          <span class="player-name">DRAWS</span>
-          <span class="score-value" id="scoreTies">0</span>
-        </div>
-      </div>
-
-      <div class="score-card player-o" id="cardO">
-        <div class="score-icon">◯</div>
-        <div class="score-info">
-          <span class="player-name" id="nameO">BOT (O)</span>
-          <span class="score-value" id="scoreO">0</span>
-        </div>
-      </div>
-    </div>
 
     <!-- Turn Indicator -->
     <div class="turn-banner" id="turnBanner">
       <span class="turn-dot"></span>
-      <span id="turnText">Player X's Turn</span>
+      <span id="turnText">Your Turn (X)</span>
     </div>
 
     <!-- Game Board -->
@@ -102,28 +50,12 @@
       </div>
     </main>
 
-    <!-- Controls -->
-    <footer class="game-controls">
-      <button class="ctrl-btn btn-sound" id="btnSound" title="Toggle Sound" aria-label="Sound Toggle">
-        <span id="soundIcon">🔊</span>
-      </button>
-      <button class="ctrl-btn btn-restart" id="btnRestart">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-        </svg>
-        Restart Round
-      </button>
-      <button class="ctrl-btn btn-reset" id="btnResetAll" title="Reset All Scores">
-        Reset Score
-      </button>
-    </footer>
-
     <!-- Game Over Modal / Result Overlay -->
     <div class="modal-overlay" id="resultModal">
       <div class="modal-card">
         <div class="trophy-glow" id="modalGlow">🏆</div>
         <h2 class="modal-title" id="modalTitle">VICTORY!</h2>
-        <p class="modal-subtitle" id="modalSubtitle">Player X won the match!</p>
+        <p class="modal-subtitle" id="modalSubtitle">You defeated the Bot!</p>
         
         <div class="reward-box" id="rewardBox">
           <div class="coin-badge">
@@ -136,8 +68,9 @@
           </div>
         </div>
 
-        <div class="modal-actions">
-          <button class="action-btn btn-primary" id="btnNextRound">Play Again</button>
+        <div class="modal-actions" id="modalActions">
+          <!-- Button dynamically rendered: Only appears if it's a DRAW to replay tiebreaker -->
+          <button class="action-btn btn-primary" id="btnReplayDraw" style="display: none;">Play Tiebreaker</button>
         </div>
       </div>
     </div>
