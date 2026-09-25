@@ -19,6 +19,14 @@
   </div>
 
   <div class="app-container">
+    <!-- Top Navigation Bar with Exit / Quit Button -->
+    <div class="top-nav-bar">
+      <button class="top-quit-btn" id="btnTopQuit" aria-label="Exit Game">
+        <span class="quit-icon">✕</span>
+        <span>Exit</span>
+      </button>
+    </div>
+
     <!-- Header -->
     <header class="game-header">
       <div class="brand">
@@ -62,15 +70,15 @@
         <div class="reward-box" id="rewardBox">
           <div class="coin-badge">
             <span class="coin-icon">🪙</span>
-            <span class="coin-text" id="rewardText">+50 Coins Earned</span>
+            <span class="coin-text" id="rewardText"></span>
           </div>
-
         </div>
 
         <div class="modal-actions" id="modalActions">
-          <!-- Button dynamically rendered: Only appears if it's a DRAW to replay tiebreaker -->
+          <!-- Button dynamically rendered: Only appears if it's a DRAW to replay tiebreaker or on Defeat to play again -->
           <button class="action-btn btn-primary" id="btnReplayDraw" style="display: none;">Play Tiebreaker</button>
           <button class="action-btn btn-save" id="btnSavePoints">💾 Save Points</button>
+          <button class="action-btn btn-exit" id="btnExit">🚪 Exit</button>
         </div>
       </div>
     </div>

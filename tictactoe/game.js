@@ -13,6 +13,19 @@
   let moveCount = 0;
   let lastGameResult = null;
 
+  // URL Query Parameters for Dynamic Reward & Unit
+  const urlParams = new URLSearchParams(window.location.search);
+  const rewardParam =
+    urlParams.get('reward') ||
+    urlParams.get('coins') ||
+    urlParams.get('points') ||
+    urlParams.get('value');
+  const rewardValue =
+    rewardParam !== null && !isNaN(parseInt(rewardParam, 10))
+      ? parseInt(rewardParam, 10)
+      : 0;
+  const rewardUnit = urlParams.get('unit') || urlParams.get('units') || 'Coins';
+
   // Winning Combos
   const WINNING_COMBOS = [
     [0, 1, 2], // Row 0
@@ -35,9 +48,12 @@
   const modalGlow = document.getElementById('modalGlow');
   const modalTitle = document.getElementById('modalTitle');
   const modalSubtitle = document.getElementById('modalSubtitle');
+  const rewardBox = document.getElementById('rewardBox');
   const rewardText = document.getElementById('rewardText');
   const btnReplayDraw = document.getElementById('btnReplayDraw');
   const btnSavePoints = document.getElementById('btnSavePoints');
+  const btnExit = document.getElementById('btnExit');
+  const btnTopQuit = document.getElementById('btnTopQuit');
   const confettiCanvas = document.getElementById('confettiCanvas');
 
   // Web Audio Synthesizer
@@ -66,7 +82,7 @@
         gain.connect(this.ctx.destination);
         osc.start(this.ctx.currentTime + delay);
         osc.stop(this.ctx.currentTime + delay + duration);
-      } catch (_) {}
+      } catch (_) { }
     },
     tapX() {
       this.playTone(520, 'sine', 0.08);
@@ -151,6 +167,7 @@
       winner: result.winner, // 'X', 'O', or 'DRAW'
       score: result.score,
       coins: result.coins,
+      unit: rewardUnit,
       moves: result.moves,
       mode: 'ai',
       difficulty: 'medium',
@@ -216,38 +233,50 @@
 
     if (strikeLineEl) strikeLineEl.style.opacity = '0';
     if (resultModal) resultModal.classList.remove('active');
-    if (btnReplayDraw) btnReplayDraw.style.display = 'none';
+    if (rewardBox) rewardBox.style.display = 'flex';
+    if (btnReplayDraw) {
+      btnReplayDraw.style.display = 'none';
+      btnReplayDraw.textContent = 'Play Tiebreaker';
+    }
     if (btnSavePoints) {
       btnSavePoints.textContent = '💾 Save Points';
       btnSavePoints.disabled = false;
+      btnSavePoints.style.display = 'block';
     }
+    if (boardEl) boardEl.style.pointerEvents = 'auto';
     Confetti.stop();
     updateTurnIndicator();
   }
 
   // Cell Click Handler
   function handleCellClick(index) {
-    if (board[index] !== null || isGameOver) return;
+    // Strictly prevent move if it is not player's turn (X), or cell is filled, or game is over
+    if (currentPlayer !== 'X' || board[index] !== null || isGameOver) return;
 
     makeMove(index, 'X');
 
     if (isGameOver) return;
 
-    // AI Turn
+    // AI Turn - block all further inputs immediately
+    if (boardEl) boardEl.style.pointerEvents = 'none';
     cells.forEach((c) => (c.disabled = true));
+
     setTimeout(() => {
       if (!isGameOver) {
         const aiMove = getAiMove();
-        makeMove(aiMove, 'O');
+        if (aiMove !== null && aiMove !== undefined) {
+          makeMove(aiMove, 'O');
+        }
         if (!isGameOver) {
           cells.forEach((c) => {
             if (board[parseInt(c.dataset.index)] === null) {
               c.disabled = false;
             }
           });
+          if (boardEl) boardEl.style.pointerEvents = 'auto';
         }
       }
-    }, 380);
+    }, 450);
   }
 
   // Execute a Move
@@ -296,18 +325,18 @@
       combo[0] === 0 && combo[1] === 1
         ? 0
         : combo[0] === 3 && combo[1] === 4
-        ? 1
-        : combo[0] === 6 && combo[1] === 7
-        ? 2
-        : -1;
+          ? 1
+          : combo[0] === 6 && combo[1] === 7
+            ? 2
+            : -1;
     const isVertical =
       combo[0] === 0 && combo[1] === 3
         ? 0
         : combo[0] === 1 && combo[1] === 4
-        ? 1
-        : combo[0] === 2 && combo[1] === 5
-        ? 2
-        : -1;
+          ? 1
+          : combo[0] === 2 && combo[1] === 5
+            ? 2
+            : -1;
     const isDiagonal1 = combo[0] === 0 && combo[1] === 4 && combo[2] === 8;
     const isDiagonal2 = combo[0] === 2 && combo[1] === 4 && combo[2] === 6;
 
@@ -361,40 +390,53 @@
   // Handle Game Over
   function handleGameOver(winner, winCombo) {
     isGameOver = true;
+    if (boardEl) boardEl.style.pointerEvents = 'none';
+    cells.forEach((c) => (c.disabled = true));
     let earnedCoins = 0;
     let score = 0;
 
     if (winner === 'X') {
-      earnedCoins = 50;
-      score = 500;
+      earnedCoins = rewardValue;
+      score = rewardValue * 10;
       if (modalGlow) modalGlow.textContent = '🏆';
       if (modalTitle) modalTitle.textContent = 'VICTORY!';
       if (modalSubtitle) modalSubtitle.textContent = 'You defeated the Bot in this round!';
-      if (btnReplayDraw) btnReplayDraw.style.display = 'none'; // Over: No replay on win
+      if (rewardBox) rewardBox.style.display = 'flex';
+      if (rewardText) rewardText.textContent = `+${earnedCoins} ${rewardUnit} Earned`;
+      if (btnReplayDraw) btnReplayDraw.style.display = 'none';
+      if (btnSavePoints) btnSavePoints.style.display = 'block';
       AudioEngine.win();
       Confetti.start();
       if (winCombo) drawStrikeLine(winCombo);
     } else if (winner === 'O') {
-      earnedCoins = 10;
-      score = 100;
+      earnedCoins = 0;
+      score = 0;
       if (modalGlow) modalGlow.textContent = '🤖';
       if (modalTitle) modalTitle.textContent = 'DEFEAT!';
-      if (modalSubtitle) modalSubtitle.textContent = 'Bot won this round!';
-      if (btnReplayDraw) btnReplayDraw.style.display = 'none'; // Over: No replay on loss
+      if (modalSubtitle) modalSubtitle.textContent = 'Bot won this round! Try again to earn coins.';
+      if (rewardBox) rewardBox.style.display = 'none'; // Hide coins card on defeat
+      if (btnSavePoints) btnSavePoints.style.display = 'none'; // Do not allow saving points on defeat
+      if (btnReplayDraw) {
+        btnReplayDraw.textContent = 'Play Again';
+        btnReplayDraw.style.display = 'block'; // Allow user to play again
+      }
       AudioEngine.draw();
       if (winCombo) drawStrikeLine(winCombo);
     } else {
-      // DRAW: Allow playing tiebreaker round
-      earnedCoins = 20;
-      score = 250;
+      // DRAW: Allow playing tiebreaker round (no points saved)
+      earnedCoins = 0;
+      score = 0;
       if (modalGlow) modalGlow.textContent = '🤝';
       if (modalTitle) modalTitle.textContent = "IT'S A DRAW!";
-      if (modalSubtitle) modalSubtitle.textContent = 'Round ended in a tie. Play tiebreaker!';
-      if (btnReplayDraw) btnReplayDraw.style.display = 'block'; // Only visible on draw
+      if (modalSubtitle) modalSubtitle.textContent = 'Match tied! Play tiebreaker to win coins.';
+      if (rewardBox) rewardBox.style.display = 'none'; // Hide coins card on draw
+      if (btnSavePoints) btnSavePoints.style.display = 'none'; // Do not save points on draw
+      if (btnReplayDraw) {
+        btnReplayDraw.textContent = 'Play Tiebreaker';
+        btnReplayDraw.style.display = 'block';
+      }
       AudioEngine.draw();
     }
-
-    if (rewardText) rewardText.textContent = `+${earnedCoins} Coins Earned`;
 
     lastGameResult = {
       winner: winner,
@@ -403,8 +445,10 @@
       moves: moveCount,
     };
 
-    // Notify Flutter App via WebView Bridge
-    notifyFlutterApp(lastGameResult);
+    // Only notify Flutter if player won
+    if (winner === 'X') {
+      notifyFlutterApp(lastGameResult);
+    }
 
     // Show result modal
     setTimeout(() => {
@@ -527,12 +571,12 @@
 
   // Save Points to Flutter App
   function savePoints() {
-    const data = lastGameResult || {
-      winner: currentPlayer,
-      score: 500,
-      coins: 50,
-      moves: moveCount,
-    };
+    if (!lastGameResult || lastGameResult.winner !== 'X' || lastGameResult.coins <= 0) {
+      console.log('[PlayPlex WebView Bridge] Points can only be saved on Victory.');
+      return;
+    }
+
+    const data = lastGameResult;
 
     const payload = {
       event: 'savePoints',
@@ -540,6 +584,7 @@
       winner: data.winner,
       score: data.score,
       coins: data.coins,
+      unit: rewardUnit,
       moves: data.moves,
       timestamp: Date.now(),
     };
@@ -573,6 +618,40 @@
   // Save Points button click handler
   if (btnSavePoints) {
     btnSavePoints.addEventListener('click', savePoints);
+  }
+
+  // Exit Game to Flutter App
+  function exitGame() {
+    const payload = {
+      event: 'exitGame',
+      game: 'tictactoe',
+      timestamp: Date.now(),
+    };
+
+    const payloadJson = JSON.stringify(payload);
+    console.log('[PlayPlex WebView Bridge] Dispatched exitGame to Flutter:', payload);
+
+    if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
+      window.FlutterChannel.postMessage(payloadJson);
+    } else if (window.FlutterGameBridge && typeof window.FlutterGameBridge.postMessage === 'function') {
+      window.FlutterGameBridge.postMessage(payloadJson);
+    } else if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+      window.flutter_inappwebview.callHandler('exitGame', payload);
+    } else if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+      window.chrome.webview.postMessage(payloadJson);
+    } else if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'EXIT_GAME', data: payload }, '*');
+    }
+  }
+
+  // Exit button click handler
+  if (btnExit) {
+    btnExit.addEventListener('click', exitGame);
+  }
+
+  // Top bar exit/quit button click handler
+  if (btnTopQuit) {
+    btnTopQuit.addEventListener('click', exitGame);
   }
 
   // Resize listener for confetti
