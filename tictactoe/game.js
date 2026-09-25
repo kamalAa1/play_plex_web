@@ -11,6 +11,7 @@
   let currentPlayer = 'X'; // Player is X, Bot is O
   let isGameOver = false;
   let moveCount = 0;
+  let lastGameResult = null;
 
   // Winning Combos
   const WINNING_COMBOS = [
@@ -36,6 +37,7 @@
   const modalSubtitle = document.getElementById('modalSubtitle');
   const rewardText = document.getElementById('rewardText');
   const btnReplayDraw = document.getElementById('btnReplayDraw');
+  const btnSavePoints = document.getElementById('btnSavePoints');
   const confettiCanvas = document.getElementById('confettiCanvas');
 
   // Web Audio Synthesizer
@@ -223,6 +225,10 @@
     if (strikeLineEl) strikeLineEl.style.opacity = '0';
     if (resultModal) resultModal.classList.remove('active');
     if (btnReplayDraw) btnReplayDraw.style.display = 'none';
+    if (btnSavePoints) {
+      btnSavePoints.textContent = '💾 Save Points';
+      btnSavePoints.disabled = false;
+    }
     Confetti.stop();
     updateTurnIndicator();
   }
@@ -398,13 +404,15 @@
 
     if (rewardText) rewardText.textContent = `+${earnedCoins} Coins Earned`;
 
-    // Notify Flutter App via WebView Bridge
-    notifyFlutterApp({
+    lastGameResult = {
       winner: winner,
       score: score,
       coins: earnedCoins,
       moves: moveCount,
-    });
+    };
+
+    // Notify Flutter App via WebView Bridge
+    notifyFlutterApp(lastGameResult);
 
     // Show result modal
     setTimeout(() => {
@@ -525,9 +533,58 @@
     });
   });
 
+  // Save Points to Flutter App
+  function savePoints() {
+    const data = lastGameResult || {
+      winner: currentPlayer,
+      score: 500,
+      coins: 50,
+      moves: moveCount,
+    };
+
+    const payload = {
+      event: 'savePoints',
+      game: 'tictactoe',
+      winner: data.winner,
+      score: data.score,
+      coins: data.coins,
+      moves: data.moves,
+      timestamp: Date.now(),
+    };
+
+    const payloadJson = JSON.stringify(payload);
+    console.log('[PlayPlex WebView Bridge] Dispatched savePoints to Flutter:', payload);
+
+    if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
+      window.FlutterChannel.postMessage(payloadJson);
+    }
+    if (window.FlutterGameBridge && typeof window.FlutterGameBridge.postMessage === 'function') {
+      window.FlutterGameBridge.postMessage(payloadJson);
+    }
+    if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+      window.flutter_inappwebview.callHandler('savePoints', payload);
+    }
+    if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+      window.chrome.webview.postMessage(payloadJson);
+    }
+    if (window.parent && window.parent !== window) {
+      window.parent.postMessage({ type: 'SAVE_POINTS', data: payload }, '*');
+    }
+
+    if (btnSavePoints) {
+      btnSavePoints.textContent = '✅ Points Saved!';
+      btnSavePoints.disabled = true;
+    }
+  }
+
   // Replay only active on draw
   if (btnReplayDraw) {
     btnReplayDraw.addEventListener('click', initGame);
+  }
+
+  // Save Points button click handler
+  if (btnSavePoints) {
+    btnSavePoints.addEventListener('click', savePoints);
   }
 
   // Resize listener for confetti

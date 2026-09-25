@@ -394,6 +394,22 @@ body {
   box-shadow: 0 6px 22px rgba(0, 245, 212, 0.5);
 }
 
+.btn-save {
+  background: linear-gradient(135deg, #ffd166, #ff9f1c);
+  color: #0b0c1e;
+  box-shadow: 0 4px 18px rgba(255, 209, 102, 0.35);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 22px rgba(255, 209, 102, 0.5);
+}
+
+.btn-save:active,
+.btn-primary:active {
+  transform: scale(0.96);
+}
+
 #confettiCanvas {
   position: fixed;
   inset: 0;
