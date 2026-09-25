@@ -166,28 +166,20 @@
     if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
       window.FlutterChannel.postMessage(payloadJson);
       bridgeDetected = true;
-    }
-
-    // 2. Alternative Flutter Channel name: FlutterGameBridge
-    if (window.FlutterGameBridge && typeof window.FlutterGameBridge.postMessage === 'function') {
+    } else if (window.FlutterGameBridge && typeof window.FlutterGameBridge.postMessage === 'function') {
+      // 2. Alternative Flutter Channel name: FlutterGameBridge
       window.FlutterGameBridge.postMessage(payloadJson);
       bridgeDetected = true;
-    }
-
-    // 3. flutter_inappwebview support
-    if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+    } else if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+      // 3. flutter_inappwebview support
       window.flutter_inappwebview.callHandler('onGameOver', payload);
       bridgeDetected = true;
-    }
-
-    // 4. Windows WebView2 / Chrome PostMessage
-    if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+    } else if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+      // 4. Windows WebView2 / Chrome PostMessage
       window.chrome.webview.postMessage(payloadJson);
       bridgeDetected = true;
-    }
-
-    // 5. Parent window / Iframe postMessage
-    if (window.parent && window.parent !== window) {
+    } else if (window.parent && window.parent !== window) {
+      // 5. Parent window / Iframe postMessage
       window.parent.postMessage({ type: 'GAME_OVER', data: payload }, '*');
       bridgeDetected = true;
     }
@@ -557,17 +549,13 @@
 
     if (window.FlutterChannel && typeof window.FlutterChannel.postMessage === 'function') {
       window.FlutterChannel.postMessage(payloadJson);
-    }
-    if (window.FlutterGameBridge && typeof window.FlutterGameBridge.postMessage === 'function') {
+    } else if (window.FlutterGameBridge && typeof window.FlutterGameBridge.postMessage === 'function') {
       window.FlutterGameBridge.postMessage(payloadJson);
-    }
-    if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
+    } else if (window.flutter_inappwebview && typeof window.flutter_inappwebview.callHandler === 'function') {
       window.flutter_inappwebview.callHandler('savePoints', payload);
-    }
-    if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
+    } else if (window.chrome && window.chrome.webview && typeof window.chrome.webview.postMessage === 'function') {
       window.chrome.webview.postMessage(payloadJson);
-    }
-    if (window.parent && window.parent !== window) {
+    } else if (window.parent && window.parent !== window) {
       window.parent.postMessage({ type: 'SAVE_POINTS', data: payload }, '*');
     }
 
