@@ -106,7 +106,7 @@
         gain.connect(this.ctx.destination);
         osc.start(this.ctx.currentTime + delay);
         osc.stop(this.ctx.currentTime + delay + duration);
-      } catch (_) {}
+      } catch (_) { }
     },
     drop() {
       this.playTone(440, 'sine', 0.08, 0, 0.08);
@@ -246,7 +246,7 @@
   let nextTier = 0;
 
   // Danger line config
-  const DANGER_Y = 75;
+  const DANGER_Y = 65;
   let dangerTimer = 0;
   const DANGER_LIMIT_SECONDS = 2.5;
 
@@ -254,10 +254,10 @@
   let comboCount = 0;
   let comboTimer = null;
 
-  // Physics constants - snappy, responsive arcade feel
-  const GRAVITY = 1.35;
-  const RESTITUTION = 0.32; // Bounciness
-  const FRICTION = 0.993; // Air and rolling friction
+  // Physics constants - balanced, gentle arcade feel with low bounciness
+  const GRAVITY = 1.30;
+  const RESTITUTION = 0.12; // Reduced bounciness for stable settling
+  const FRICTION = 0.988; // Air and rolling friction
   const SUB_STEPS = 8; // Physics solver iterations for stability
 
   // ==========================================
@@ -295,22 +295,22 @@
       if (this.x - this.radius < 0) {
         this.x = this.radius;
         this.vx = -this.vx * RESTITUTION;
-        AudioEngine.bounce();
+        if (Math.abs(this.vx) > 0.4) AudioEngine.bounce();
       }
 
       // Right Wall
       if (this.x + this.radius > width) {
         this.x = width - this.radius;
         this.vx = -this.vx * RESTITUTION;
-        AudioEngine.bounce();
+        if (Math.abs(this.vx) > 0.4) AudioEngine.bounce();
       }
 
       // Floor
       if (this.y + this.radius > height) {
         this.y = height - this.radius;
         this.vy = -this.vy * RESTITUTION;
-        if (Math.abs(this.vy) < 0.2) this.vy = 0;
-        this.vx *= 0.95;
+        if (Math.abs(this.vy) < 0.25) this.vy = 0;
+        this.vx *= 0.90;
       }
     }
 
@@ -463,7 +463,7 @@
     }
     if (rewardBox) rewardBox.style.display = rewardValue > 0 ? 'flex' : 'none';
     if (btnSavePoints) {
-      btnSavePoints.textContent = '💾 Save Points';
+      btnSavePoints.textContent = 'Save Points';
       btnSavePoints.disabled = false;
       btnSavePoints.style.display = rewardValue > 0 ? 'block' : 'none';
     }
@@ -504,7 +504,7 @@
     const clampedX = Math.max(tierInfo.radius + 6, Math.min(width - tierInfo.radius - 6, aimX));
     const dropY = Math.max(tierInfo.radius + 8, 40);
 
-    const newBall = new Ball(clampedX, dropY, currentTier, 0, 3.5);
+    const newBall = new Ball(clampedX, dropY, currentTier, 0, 1.8);
     balls.push(newBall);
     totalDrops++;
 
@@ -595,7 +595,7 @@
     const midX = (b1.x + b2.x) / 2;
     const midY = (b1.y + b2.y) / 2;
 
-    const mergedBall = new Ball(midX, midY, nextTierIdx, (b1.vx + b2.vx) * 0.3, (b1.vy + b2.vy) * 0.3);
+    const mergedBall = new Ball(midX, midY, nextTierIdx, (b1.vx + b2.vx) * 0.15, (b1.vy + b2.vy) * 0.15);
     balls.push(mergedBall);
 
     const mergedTier = TIERS[nextTierIdx];
@@ -697,7 +697,7 @@
       if (rewardText) rewardText.textContent = `+${earnedCoins} ${rewardUnit} Earned`;
       if (btnSavePoints) {
         btnSavePoints.style.display = earnedCoins > 0 ? 'block' : 'none';
-        btnSavePoints.textContent = '💾 Save Points';
+        btnSavePoints.textContent = 'Save Points';
         btnSavePoints.disabled = false;
       }
     } else {

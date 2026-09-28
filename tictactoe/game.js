@@ -242,7 +242,7 @@
       btnReplayDraw.textContent = 'Play Tiebreaker';
     }
     if (btnSavePoints) {
-      btnSavePoints.textContent = '💾 Save Points';
+      btnSavePoints.textContent = 'Save Points';
       btnSavePoints.disabled = false;
       btnSavePoints.style.display = 'block';
     }
