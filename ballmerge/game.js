@@ -345,7 +345,7 @@
       c.stroke();
 
       // Number Label
-      c.fillStyle = this.tier >= 8 ? '#ffffff' : '#0b0c1e';
+      c.fillStyle = (this.tier === 0 || this.tier === 3 || this.tier === 10) ? '#1e202e' : '#ffffff';
       c.font = `900 ${Math.max(10, Math.round(r * 0.65))}px 'Outfit', sans-serif`;
       c.textAlign = 'center';
       c.textBaseline = 'middle';
@@ -457,7 +457,10 @@
     updateNextBallPreview();
 
     if (dangerLineEl) dangerLineEl.classList.remove('active-danger');
-    if (resultModal) resultModal.classList.remove('active');
+    if (resultModal) {
+      resultModal.classList.remove('active');
+      resultModal.classList.remove('card-hidden');
+    }
     if (rewardBox) rewardBox.style.display = rewardValue > 0 ? 'flex' : 'none';
     if (btnSavePoints) {
       btnSavePoints.textContent = '💾 Save Points';
@@ -728,7 +731,10 @@
 
     // Show modal overlay
     setTimeout(() => {
-      if (resultModal) resultModal.classList.add('active');
+      if (resultModal) {
+        resultModal.classList.remove('card-hidden');
+        resultModal.classList.add('active');
+      }
     }, 600);
   }
 
@@ -747,7 +753,7 @@
       ctx.save();
       // Dashed Aim Laser
       ctx.setLineDash([6, 6]);
-      ctx.strokeStyle = 'rgba(0, 245, 212, 0.4)';
+      ctx.strokeStyle = 'rgba(112, 66, 244, 0.45)';
       ctx.lineWidth = 1.5;
       ctx.beginPath();
       ctx.moveTo(clampedX, previewY);
@@ -854,6 +860,11 @@
     if (btnSavePoints) {
       btnSavePoints.textContent = '✅ Points Saved!';
       btnSavePoints.disabled = true;
+    }
+
+    // Close the dialog card while keeping the blurred backdrop active
+    if (resultModal) {
+      resultModal.classList.add('card-hidden');
     }
   }
 

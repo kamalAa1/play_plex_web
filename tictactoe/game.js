@@ -232,7 +232,10 @@
     });
 
     if (strikeLineEl) strikeLineEl.style.opacity = '0';
-    if (resultModal) resultModal.classList.remove('active');
+    if (resultModal) {
+      resultModal.classList.remove('active');
+      resultModal.classList.remove('card-hidden');
+    }
     if (rewardBox) rewardBox.style.display = 'flex';
     if (btnReplayDraw) {
       btnReplayDraw.style.display = 'none';
@@ -452,7 +455,10 @@
 
     // Show result modal
     setTimeout(() => {
-      if (resultModal) resultModal.classList.add('active');
+      if (resultModal) {
+        resultModal.classList.remove('card-hidden');
+        resultModal.classList.add('active');
+      }
     }, 700);
   }
 
@@ -607,6 +613,11 @@
     if (btnSavePoints) {
       btnSavePoints.textContent = '✅ Points Saved!';
       btnSavePoints.disabled = true;
+    }
+
+    // Close the dialog card while keeping the blurred backdrop active
+    if (resultModal) {
+      resultModal.classList.add('card-hidden');
     }
   }
 
