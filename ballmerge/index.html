@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PlayPlex | Ball Merge 2048 Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Ambient Animated Background -->
+  <div class="background-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Top Header & Navigation -->
+    <header class="top-nav-bar">
+      <button class="top-quit-btn" id="btnTopQuit" aria-label="Exit Game">
+        <span class="quit-icon">✕</span>
+        <span>Exit</span>
+      </button>
+
+      <div class="score-board">
+        <div class="score-card">
+          <span class="score-label">SCORE</span>
+          <span class="score-val" id="currentScore">0</span>
+        </div>
+        <div class="score-card target-card">
+          <span class="score-label">TARGET</span>
+          <span class="score-val" id="targetScore">500</span>
+        </div>
+      </div>
+
+      <!-- Next Ball Preview Indicator -->
+      <div class="next-bubble-card" title="Next Ball">
+        <span class="next-label">NEXT</span>
+        <div class="next-preview-circle" id="nextBallPreview">
+          <span id="nextBallText">2</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Game Title Banner -->
+    <div class="game-meta-header">
+      <div class="brand">
+        <h1 class="game-title">Ball <span>Merge</span></h1>
+        <p class="game-hint">Aim & Drop • Merge Identical Orbs • Reach Target Score</p>
+      </div>
+    </div>
+
+    <!-- Physics Game Arena Canvas Wrapper -->
+    <main class="game-arena-wrapper">
+      <div class="arena-frame" id="arenaFrame">
+        <canvas id="gameCanvas"></canvas>
+
+        <!-- Danger Line Indicator -->
+        <div class="danger-line" id="dangerLine">
+          <span class="danger-label">⚠️ DANGER LIMIT</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- Result / Game Over Modal Overlay -->
+    <div class="modal-overlay" id="resultModal">
+      <div class="modal-card">
+        <div class="trophy-glow" id="modalGlow">🏆</div>
+        <h2 class="modal-title" id="modalTitle">TARGET REACHED!</h2>
+        <p class="modal-subtitle" id="modalSubtitle">Awesome match! You reached the target score.</p>
+
+        <!-- Final Score Summary -->
+        <div class="final-score-box">
+          <div class="final-score-row">
+            <span class="fs-label">Final Score</span>
+            <span class="fs-value" id="modalFinalScore">0</span>
+          </div>
+          <div class="final-score-row">
+            <span class="fs-label">Target Score</span>
+            <span class="fs-value highlight" id="modalTargetScore">500</span>
+          </div>
+          <div class="final-score-row">
+            <span class="fs-label">Highest Orb</span>
+            <span class="fs-value" id="modalHighestOrb">64</span>
+          </div>
+        </div>
+
+        <!-- Reward Badge (Dynamic Coin Credit) -->
+        <div class="reward-box" id="rewardBox">
+          <div class="coin-badge">
+            <span class="coin-icon">🪙</span>
+            <span class="coin-text" id="rewardText"></span>
+          </div>
+        </div>
+
+        <div class="modal-actions" id="modalActions">
+          <button class="action-btn btn-save" id="btnSavePoints">💾 Save Points</button>
+          <button class="action-btn btn-primary" id="btnPlayAgain">🔄 Play Again</button>
+          <button class="action-btn btn-exit" id="btnExit">🚪 Exit Arena</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Celebration Confetti Overlay -->
+    <canvas id="confettiCanvas"></canvas>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+
+</html>
