@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PlayPlex | Memory Match Arena</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <!-- Ambient Animated Background -->
+  <div class="background-blobs">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+  </div>
+
+  <div class="app-container">
+    <!-- Top Navigation Bar with Exit / Quit Button & Dashboard -->
+    <header class="top-nav-bar">
+      <button class="top-quit-btn" id="btnTopQuit" aria-label="Exit Game">
+        <span class="quit-icon">✕</span>
+        <span>Exit</span>
+      </button>
+
+      <div class="stats-dashboard">
+        <div class="stat-card timer-card">
+          <span class="stat-icon">⏱️</span>
+          <div class="stat-content">
+            <span class="stat-label">TIME</span>
+            <span class="stat-val" id="timeDisplay">00:00</span>
+          </div>
+        </div>
+
+        <div class="stat-card moves-card">
+          <span class="stat-icon">🔄</span>
+          <div class="stat-content">
+            <span class="stat-label">MOVES</span>
+            <span class="stat-val" id="movesDisplay">0</span>
+          </div>
+        </div>
+
+        <div class="stat-card pairs-card">
+          <span class="stat-icon">🎯</span>
+          <div class="stat-content">
+            <span class="stat-label">PAIRS</span>
+            <span class="stat-val" id="pairsDisplay">0/8</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Header Banner -->
+    <div class="game-meta-header">
+      <div class="brand">
+        <div class="game-badge">🧠 PLAYPLEX BRAIN ARENA</div>
+        <h1 class="game-title">Memory <span>Match</span></h1>
+        <p class="game-hint">Flip & Match All Pairs to Win Maximum Coin Rewards</p>
+      </div>
+    </div>
+
+    <!-- Memory Card Grid Board -->
+    <main class="grid-wrapper">
+      <div class="cards-grid" id="cardsGrid">
+        <!-- 16 Dynamic Memory Cards rendered via JavaScript -->
+      </div>
+    </main>
+
+    <!-- Game Over / Victory Modal Overlay -->
+    <div class="modal-overlay" id="resultModal">
+      <div class="modal-card">
+        <div class="trophy-glow" id="modalGlow">🏆</div>
+        <h2 class="modal-title" id="modalTitle">PERFECT MATCH!</h2>
+        <p class="modal-subtitle" id="modalSubtitle">You cleared all pairs with great memory!</p>
+
+        <!-- Final Stats Summary -->
+        <div class="final-score-box">
+          <div class="final-score-row">
+            <span class="fs-label">Time Taken</span>
+            <span class="fs-value" id="modalFinalTime">00:45</span>
+          </div>
+          <div class="final-score-row">
+            <span class="fs-label">Total Moves</span>
+            <span class="fs-value" id="modalFinalMoves">16</span>
+          </div>
+          <div class="final-score-row">
+            <span class="fs-label">Accuracy</span>
+            <span class="fs-value highlight" id="modalAccuracy">100%</span>
+          </div>
+        </div>
+
+        <!-- Reward Badge (Dynamic Coin Credit) -->
+        <div class="reward-box" id="rewardBox">
+          <div class="coin-badge">
+            <span class="coin-icon">🪙</span>
+            <span class="coin-text" id="rewardText">+100 Coins Earned</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="modal-actions" id="modalActions">
+          <button class="action-btn btn-secondary" id="btnPlayAgain">Play Again</button>
+          <button class="action-btn btn-save" id="btnSavePoints">Save Points</button>
+          <button class="action-btn btn-exit" id="btnExit">Exit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Canvas for Confetti Fireworks -->
+    <canvas id="confettiCanvas"></canvas>
+  </div>
+
+  <script src="game.js"></script>
+</body>
+
+</html>
